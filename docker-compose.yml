@@ -1,0 +1,20 @@
+services:
+
+  comfyui:
+    build:
+      context: .
+    image: local/comfyui-xpu:latest
+    container_name: comfyui-xpu
+    restart: unless-stopped
+    devices:
+      # Expose only the Arc Pro B50 (not the Alder Lake Iris Xe).
+      - /dev/dri/renderD129:/dev/dri/renderD129
+    ports:
+      - "8188:8188"
+    volumes:
+      - ./models:/opt/ComfyUI/models
+      - ./input:/opt/ComfyUI/input
+      - ./output:/opt/ComfyUI/output
+      - ./custom_nodes:/opt/ComfyUI/custom_nodes
+      - ./user:/opt/ComfyUI/user
+      - ./hf-cache:/root/.cache/huggingface

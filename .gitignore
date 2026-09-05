@@ -1,0 +1,18 @@
+# Persistent runtime data: keep it on the NAS, not in Git.
+/models/
+/input/
+/output/
+/hf-cache/
+/custom_nodes/
+
+# Hugging Face credentials are private.
+/hf_token
+
+# Keep the checked-in Manager policy, ignore other per-user UI state.
+/user/*
+!/user/__manager/
+/user/__manager/*
+!/user/__manager/config.ini
+
+# My IDE noise
+/.idea/
