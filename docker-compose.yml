@@ -3,7 +3,7 @@ services:
   comfyui:
     build:
       context: .
-    image: local/comfyui-xpu:latest
+    image: telnetdoogie/comfyui-xpu:latest
     container_name: comfyui-xpu
     restart: unless-stopped
     devices:
