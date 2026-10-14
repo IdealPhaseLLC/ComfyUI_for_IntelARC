@@ -19,7 +19,7 @@ RUN apt-get update \
         libgomp1 \
  && wget -qO - https://repositories.intel.com/gpu/intel-graphics.key \
       | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg \
- && echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu noble/intel-omix/0.3 unified' \
+ && echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu noble/intel-omix/0.4 unified' \
       > /etc/apt/sources.list.d/intel-omix.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends intel-omix \
