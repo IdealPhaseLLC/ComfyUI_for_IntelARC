@@ -7,8 +7,9 @@ services:
     container_name: comfyui-xpu
     restart: unless-stopped
     devices:
-      # Expose only the Arc Pro B50 (not the Alder Lake Iris Xe).
-      - /dev/dri/renderD129:/dev/dri/renderD129
+      - source: /dev/dri/by-path/pci-0000:04:00.0-render
+        target: /dev/dri/renderD128
+        permissions: rwm
     ports:
       - "8188:8188"
     volumes:
