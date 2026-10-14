@@ -1,6 +1,6 @@
 # ComfyUI on Intel Arc Pro B50 (native PyTorch XPU)
 
-This project intentionally uses native PyTorch XPU support, not the retired Intel Extension for PyTorch (IPEX) route. It exposes only `/dev/dri/renderD129`, which is the Arc Pro B50 on this host, so ComfyUI cannot accidentally select the Iris Xe iGPU.
+This project intentionally uses native PyTorch XPU support, not the retired Intel Extension for PyTorch (IPEX) route. It exposes only `/dev/dri/by-path/pci-0000:04:00.0-render`, which is the Arc Pro B50 on this host, so ComfyUI cannot accidentally select the Iris Xe iGPU.
 
 It also enables ComfyUI-Manager and its legacy Extensions interface. The included Manager configuration permits catalogued model and custom-node installs on a LAN-only instance.
 
