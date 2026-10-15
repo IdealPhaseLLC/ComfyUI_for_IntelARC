@@ -12,7 +12,6 @@ RUN apt-get update \
         gnupg \
         wget \
         python3 \
-        python3-dev \
         python3-venv \
         ffmpeg \
         libgl1 \
@@ -55,6 +54,12 @@ RUN pip install \
         protobuf \
         opencv-python-headless \
         imageio-ffmpeg
+
+# Intel XPU Triton JIT compiles a small native helper at runtime.
+# python3-dev provides /usr/include/python3.12/Python.h.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/ComfyUI
 EXPOSE 8188
