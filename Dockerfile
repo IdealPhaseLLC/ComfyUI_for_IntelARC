@@ -12,6 +12,7 @@ RUN apt-get update \
         gnupg \
         wget \
         python3 \
+        python3-dev \
         python3-venv \
         ffmpeg \
         libgl1 \
@@ -58,4 +59,9 @@ RUN pip install \
 WORKDIR /opt/ComfyUI
 EXPOSE 8188
 
-CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--enable-manager", "--enable-manager-legacy-ui"]
+CMD ["python", "main.py",             \
+     "--listen", "0.0.0.0",           \
+     "--port", "8188",                \
+     "--enable-manager",              \
+     "--enable-manager-legacy-ui",    \
+     "--enable-triton-backend"]
