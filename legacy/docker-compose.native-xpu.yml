@@ -1,0 +1,21 @@
+services:
+
+  comfyui:
+    build:
+      context: .
+    image: telnetdoogie/comfyui-xpu:latest
+    container_name: comfyui-xpu
+    restart: unless-stopped
+    devices:
+      - source: /dev/dri/by-path/pci-0000:04:00.0-render
+        target: /dev/dri/renderD128
+        permissions: rwm
+    ports:
+      - "8188:8188"
+    volumes:
+      - ./models:/opt/ComfyUI/models
+      - ./input:/opt/ComfyUI/input
+      - ./output:/opt/ComfyUI/output
+      - ./custom_nodes:/opt/ComfyUI/custom_nodes
+      - ./user:/opt/ComfyUI/user
+      - ./hf-cache:/root/.cache/huggingface
