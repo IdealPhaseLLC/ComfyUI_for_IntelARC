@@ -37,3 +37,4 @@ services:
       - --listen
       - 0.0.0.0
       - --enable-manager
+      - --enable-manager-legacy-ui
