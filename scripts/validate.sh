@@ -15,10 +15,10 @@ docker run --rm \
 
 echo
 echo "== Local derivative checks =="
-docker run --rm \
+docker run --rm -i \
   --device=/dev/dri \
-  --entrypoint python \
-  "$IMAGE" - <<'PY'
+  "$IMAGE" \
+  python - <<'PY'
 import os
 from pathlib import Path
 import torch
