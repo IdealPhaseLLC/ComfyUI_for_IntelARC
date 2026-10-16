@@ -19,7 +19,7 @@ services:
       - "${COMFYUI_PORT:-8188}:8188"
 
     volumes:
-      - ${COMFYUI_MODELS_DIR:-./models}:/models/host:ro
+      - ${COMFYUI_MODELS_DIR:-./models}:/llm/ComfyUI/models
       - ${COMFYUI_INPUT_DIR:-./input}:/data/input
       - ${COMFYUI_OUTPUT_DIR:-./output}:/data/output
       - ${COMFYUI_USER_DIR:-./user}:/data/user
@@ -28,8 +28,6 @@ services:
     command:
       - python
       - main.py
-      - --extra-model-paths-config
-      - /llm/configs/comfyui_host_models.yaml
       - --input-directory
       - /data/input
       - --output-directory

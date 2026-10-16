@@ -21,3 +21,6 @@
 
 # IDE noise
 /.idea/
+
+# Compose overrides
+/docker-compose.override.yml

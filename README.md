@@ -104,16 +104,12 @@ B50 route.
 Edit `.env` if the data already lives elsewhere:
 
 ```dotenv
-COMFYUI_MODELS_DIR=/volume1/docker/comfyui-omni/models
-COMFYUI_INPUT_DIR=/volume1/docker/comfyui-omni/input
-COMFYUI_OUTPUT_DIR=/volume1/docker/comfyui-omni/output
-COMFYUI_USER_DIR=/volume1/docker/comfyui-omni/user
-COMFYUI_HF_CACHE_DIR=/volume1/docker/comfyui-omni/hf-cache
+COMFYUI_MODELS_DIR=/volume1/docker/comfyui/models
+COMFYUI_INPUT_DIR=/volume1/docker/comfyui/input
+COMFYUI_OUTPUT_DIR=/volume1/docker/comfyui/output
+COMFYUI_USER_DIR=/volume1/docker/comfyui/user
+COMFYUI_HF_CACHE_DIR=/volume1/docker/comfyui/hf-cache
 ```
-
-Models are mounted **read-only** at `/models/host`, matching Intel's supported
-external-model layout. Input, output, user state, and the Hugging Face cache are
-persistent writable mounts outside the ComfyUI checkout.
 
 The Compose service exposes `/dev/dri`, matching the validated Omni launch.
 On a host with multiple Intel GPUs, verify the detected devices before assuming
