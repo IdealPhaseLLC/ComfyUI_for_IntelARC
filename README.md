@@ -159,13 +159,29 @@ diffusion steps split 10 high-noise / 10 low-noise.
 | --- | ---: | ---: |
 | Original Q2 / Q3_K_S stack | ~54.0 s/it | ~59.8 s/it |
 | Omni + CUTE, Q2 / Q3_K_S | ~51.2 s/it | ~54.5 s/it |
-| **Omni + CUTE/Kitchen, Q4_K_S / Q4_K_S** | **50.70 s/it** | **51.20 s/it** |
+| Omni + CUTE/Kitchen, Q4_K_S / Q4_K_S | 50.70 s/it | 51.20 s/it |
+| **Omni + CUTE/Kitchen, Q6_K / Q6_K** | **47.43 s/it** | **47.40 s/it** |
 
-The Q4_K_S files used a mix dominated by `Q4_K` tensors, which is an
-accelerated Kitchen GGUF route in this Omni build. In the tested workflow,
-Q4_K_S was both faster and visibly higher quality than the lower quants.
+Q6_K is the fastest configuration tested so far.  The 20-step diffusion portion
+(10 high + 10 low) takes about **15:48** with Q6_K/Q6_K, versus about **16:59**
+with Q4_K_S/Q4_K_S -- roughly a **6.9% reduction** in diffusion time while also
+using the higher-precision quant.
 
-Runtime VRAM during the Q4_K_S low-noise pass was about **11.4 GB of 16 GB**.
+The tested Q6_K files reported this GGUF tensor mix:
+
+```text
+F16 (694), Q6_K (400), F32 (1)
+```
+
+Each Q6_K model loaded completely, with ComfyUI reporting **11580.16 MB loaded**
+and `full load: True`.  Runtime GPU memory usage was about **14.5 GiB of
+15.9 GiB**, so Q6_K is a tight fit on the 16 GB B50 but remained fully resident
+during the tested workflow.
+
+For comparison, the Q4_K_S files contained a mix dominated by `Q4_K` plus
+some `Q5_K` tensors.  Both `Q4_K` and `Q6_K` have managed XPU Kitchen
+routes in this Omni build; the clean Q6_K tensor mix and measured timings make
+Q6_K/Q6_K the current recommended Wan2.2 configuration on this card.
 
 ### TorchCompileModel
 
