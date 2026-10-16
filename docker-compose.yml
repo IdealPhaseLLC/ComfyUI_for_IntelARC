@@ -1,21 +1,41 @@
 services:
-
   comfyui:
     build:
       context: .
-    image: telnetdoogie/comfyui-xpu:latest
-    container_name: comfyui-xpu
+      args:
+        OMNI_BASE_IMAGE: ${OMNI_BASE_IMAGE:-llm-scaler-omni:0.2.0-b2-comfyui-bmg}
+    image: ${COMFYUI_IMAGE:-comfyui-intel-arc:omni-b2}
+    container_name: ${COMFYUI_CONTAINER_NAME:-comfyui-omni}
     restart: unless-stopped
+    working_dir: /llm/ComfyUI
+    shm_size: "64gb"
+
+    # Match Intel's validated BMG launch path.  On multi-GPU hosts, verify
+    # xpu:0 is the intended Arc device with ./scripts/validate.sh.
     devices:
-      - source: /dev/dri/by-path/pci-0000:04:00.0-render
-        target: /dev/dri/renderD128
-        permissions: rwm
+      - /dev/dri:/dev/dri
+
     ports:
-      - "8188:8188"
+      - "${COMFYUI_PORT:-8188}:8188"
+
     volumes:
-      - ./models:/opt/ComfyUI/models
-      - ./input:/opt/ComfyUI/input
-      - ./output:/opt/ComfyUI/output
-      - ./custom_nodes:/opt/ComfyUI/custom_nodes
-      - ./user:/opt/ComfyUI/user
-      - ./hf-cache:/root/.cache/huggingface
+      - ${COMFYUI_MODELS_DIR:-./models}:/models/host:ro
+      - ${COMFYUI_INPUT_DIR:-./input}:/data/input
+      - ${COMFYUI_OUTPUT_DIR:-./output}:/data/output
+      - ${COMFYUI_USER_DIR:-./user}:/data/user
+      - ${COMFYUI_HF_CACHE_DIR:-./hf-cache}:/root/.cache/huggingface
+
+    command:
+      - python
+      - main.py
+      - --extra-model-paths-config
+      - /llm/configs/comfyui_host_models.yaml
+      - --input-directory
+      - /data/input
+      - --output-directory
+      - /data/output
+      - --user-directory
+      - /data/user
+      - --listen
+      - 0.0.0.0
+      - --enable-manager

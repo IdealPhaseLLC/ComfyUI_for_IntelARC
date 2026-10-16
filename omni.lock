@@ -1,0 +1,18 @@
+# Known-good Intel Omni stack validated on Intel Arc Pro B50.
+# Update deliberately and re-run scripts/validate.sh plus the Wan benchmarks.
+
+LLM_SCALER_REPOSITORY=https://github.com/intel/llm-scaler.git
+LLM_SCALER_COMMIT=49c94a32bed69fbabd824debc4b136a6d15cae6d
+OMNI_BASE_IMAGE=llm-scaler-omni:0.2.0-b2-comfyui-bmg
+
+# Reference identity of the image used for the 2026-10-16 B50 validation.
+# Rebuilds from the same source pin are not required to reproduce this local image ID.
+VALIDATED_IMAGE_ID=sha256:578a322763b6f375085b43f860b9344753fea566927e3fab8209576034b7cb83
+
+OMNI_IMAGE_VERSION=0.2.0-b2
+OMNI_IMAGE_XPU_TARGET=bmg
+OMNI_TORCH_VERSION=2.14.0+xpu
+OMNI_ONEDNN_VERSION=2026.0.0
+OMNI_COMFYUI_VERSION=0.39.0
+OMNI_COMFY_KITCHEN_VERSION=0.2.37
+OMNI_COMFY_AIMDO_VERSION=0.5.5
