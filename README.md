@@ -111,6 +111,8 @@ COMFYUI_USER_DIR=/volume1/docker/comfyui/user
 COMFYUI_HF_CACHE_DIR=/volume1/docker/comfyui/hf-cache
 ```
 
+Models are mounted writable at `/llm/ComfyUI/models`, so ComfyUI and downloader extensions such as Civicomfy and HuggingFace use the same persistent host model tree.
+
 The Compose service exposes `/dev/dri`, matching the validated Omni launch.
 On a host with multiple Intel GPUs, verify the detected devices before assuming
 `xpu:0` is the intended card.
