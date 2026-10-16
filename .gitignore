@@ -1,9 +1,14 @@
-# Persistent runtime data: keep it on the NAS, not in Git.
+# Persistent runtime data: keep it on the host, not in Git.
 /models/
 /input/
 /output/
 /hf-cache/
-/custom_nodes/
+
+# Local Omni source checkout/build cache.
+/.cache/
+
+# Local Compose configuration may contain host-specific paths.
+/.env
 
 # Hugging Face credentials are private.
 /hf_token
@@ -14,5 +19,5 @@
 /user/__manager/*
 !/user/__manager/config.ini
 
-# My IDE noise
+# IDE noise
 /.idea/
