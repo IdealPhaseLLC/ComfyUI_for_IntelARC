@@ -162,7 +162,7 @@ diffusion steps split 10 high-noise / 10 low-noise.
 | Omni + CUTE/Kitchen, Q4_K_S / Q4_K_S | 50.70 s/it | 51.20 s/it |
 | **Omni + CUTE/Kitchen, Q6_K / Q6_K** | **47.43 s/it** | **47.40 s/it** |
 
-Q6_K is the fastest configuration tested so far.  The 20-step diffusion portion
+Q6_K is the fastest configuration tested so far for the 13-frame workload.  The 20-step diffusion portion
 (10 high + 10 low) takes about **15:48** with Q6_K/Q6_K, versus about **16:59**
 with Q4_K_S/Q4_K_S -- roughly a **6.9% reduction** in diffusion time while also
 using the higher-precision quant.
@@ -181,13 +181,168 @@ during the tested workflow.
 For comparison, the Q4_K_S files contained a mix dominated by `Q4_K` plus
 some `Q5_K` tensors.  Both `Q4_K` and `Q6_K` have managed XPU Kitchen
 routes in this Omni build; the clean Q6_K tensor mix and measured timings make
-Q6_K/Q6_K the current recommended Wan2.2 configuration on this card.
+Q6_K/Q6_K the current recommended configuration for short, 13-frame Wan2.2 workloads on this card.
 
 ### TorchCompileModel
 
 TorchCompileModel was tested again after enabling Omni CUTE/Kitchen. The warmed
 high-noise run was **51.04 s/it**, versus **50.70 s/it without compile**, while
 using additional VRAM. It is therefore not part of the recommended setup.
+
+## What we learned: Arc Pro B50 for image and video generation
+
+After spending quite a bit of time testing and optimizing ComfyUI on the
+Intel Arc Pro B50, the overall conclusion is positive -- with an important
+distinction between **image generation** and **video diffusion**.
+
+The B50 is an impressively versatile 16 GB GPU. It runs modern ComfyUI
+workflows, SDXL, LoRAs, GGUF-quantized models, Wan2.2 image-to-video, and
+Intel's optimized XPU kernels. It has also been a great platform for learning
+how model quantization, VRAM residency, attention kernels, and sequence length
+affect real-world generative AI performance.
+
+### Image generation is a strong use case
+
+Image generation works very well on the B50.
+
+SDXL-class models produce excellent results, the 16 GB of VRAM is useful, and
+performance is entirely reasonable for interactive experimentation. LoRA
+workflows, model comparisons, and other image-generation tasks are a very good
+fit for this card.
+
+For someone interested in experimenting with local generative AI rather than
+building a dedicated video-rendering workstation, the B50 is a surprisingly
+capable and flexible GPU.
+
+### Short video works too
+
+Wan2.2 I2V-A14B also works.
+
+For short sequences, the results can be genuinely impressive. In our testing,
+a 13-frame Wan2.2 workflow using Q6_K models:
+
+- fit completely in the B50's 16 GB VRAM;
+- produced very good visual quality;
+- maintained good subject identity and temporal consistency;
+- ran at approximately **47.4 seconds per diffusion step**;
+- benefited from Intel CUTE attention and XPU optimizations.
+
+That makes short animations, animated images, GIF-style clips, and experiments
+with image-to-video entirely practical. A roughly one-second animation
+generated from a still image can be a very cool use of this hardware.
+
+### Long-form video is a different workload
+
+Where the limits become apparent is when the frame count increases.
+
+Video diffusion does not scale linearly with the number of frames. The video
+sequence becomes much larger, and self-attention becomes increasingly
+expensive as sequence length grows.
+
+For example, our observed Wan attention sequence lengths included:
+
+| Frames | Attention sequence length |
+| ---: | ---: |
+| 13 | 18,816 |
+| 49 | 61,152 |
+| 77 | 94,080 |
+
+The cost of self-attention grows approximately with the square of sequence
+length, so longer clips become dramatically more expensive.
+
+We experimented with increasingly aggressive GGUF quantization to determine
+whether VRAM was the primary limitation.
+
+At 49 frames, a Q3_K_S Wan model fit completely in VRAM:
+
+```text
+loaded completely; 6521.60 MB usable, 6345.78 MB loaded, full load: True
+```
+
+CUTE attention was also active.
+
+Despite eliminating model offload, measured performance was:
+
+```text
+290.94 s/it
+```
+
+or almost **five minutes per diffusion step**.
+
+A 20-step high-noise + low-noise workflow would therefore require roughly
+**97 minutes of diffusion** for that short clip.
+
+This was an important result because it showed that VRAM was no longer the
+main problem. Even with the model fully resident on the GPU, the computational
+cost of long video attention dominated performance.
+
+### Quantization helps -- but cannot change the scaling problem
+
+Quantization was extremely useful for exploring the limits of the card.
+
+Some of the configurations tested included:
+
+| Configuration | Result |
+| --- | --- |
+| Q6_K, 13 frames | Fully resident, ~47.4 s/it |
+| Q4_K_S, longer sequences | Model begins partially offloading |
+| Q3_K_M, 49 frames | Very close to fitting; ~412 MB offloaded |
+| Q3_K_S, 49 frames | Fully resident, ~290.9 s/it |
+| Q6_K, 77 frames | Several GB of model weights offloaded |
+
+The experiments also showed that simply reducing model precision cannot solve
+the underlying long-sequence attention cost.
+
+Once the model fits completely in VRAM, further reductions in model size do
+not remove the rapidly increasing amount of computation required by the video
+sequence itself.
+
+### Practical conclusion
+
+The Arc Pro B50 should not be dismissed because of its video-generation
+limits. Quite the opposite: getting a 16 GB Intel GPU to run these workloads
+at all -- and produce high-quality results -- is pretty remarkable.
+
+Its sweet spots are simply different.
+
+**Great fits:**
+
+- SDXL and other image-generation workflows;
+- LoRA experimentation;
+- local generative-AI development;
+- learning ComfyUI and diffusion workflows;
+- GGUF and quantization experimentation;
+- short Wan2.2 animations;
+- animated-image / GIF-style projects;
+- testing Intel XPU and kernel optimizations.
+
+**Less practical:**
+
+- long Wan2.2 video sequences;
+- multi-second high-resolution video generation;
+- workloads where very long attention sequences must be processed repeatedly.
+
+A tiny animated clip? Absolutely.
+
+A 10-15 second AI-generated video? Technically interesting, but not a
+practical workload for this card.
+
+For those workloads, a larger and substantially faster GPU -- or a temporary
+cloud GPU -- makes much more sense.
+
+### Final takeaway
+
+The B50 turned out to be an excellent **general-purpose generative AI
+experimenting card**, rather than a dedicated video-generation card.
+
+It generates excellent images, can generate surprisingly good short videos,
+and provides enough VRAM and capability to explore models and techniques that
+would otherwise require much more expensive hardware.
+
+Perhaps most importantly, it has been a very fun platform for learning how all
+of these pieces actually work.
+
+Video diffusion just isn't its sweet spot.
 
 ## Attention microbenchmarks
 
