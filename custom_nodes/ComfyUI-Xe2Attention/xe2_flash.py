@@ -5,7 +5,6 @@ import triton
 import triton.language as tl
 
 
-LOG2E = 1.4426950408889634
 
 
 @triton.jit
@@ -113,7 +112,7 @@ def _xe2_flash_fwd_kernel(
     acc = tl.zeros([BLOCK_M, HEAD_DIM], tl.float32)
 
     # exp2() is generally preferable in the kernel.
-    qk_scale = sm_scale * LOG2E
+    qk_scale = sm_scale * 1.4426950408889634
 
     for start_n in tl.range(0, n_ctx, BLOCK_N):
         n = start_n + offs_n
